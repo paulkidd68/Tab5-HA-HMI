@@ -102,6 +102,15 @@ esphome config tab5-ha-hmi.yaml
   - Ensure all referenced local media files exist at the expected paths.
   - Remove or update references to files you do not use.
 
+## Third-party trademarks and assets
+
+Third-party logos and brand assets in this repository are the property of their
+respective owners and may be protected by copyright and trademark law.
+
+They are included here for identification and UI demonstration purposes only.
+This project is not affiliated with, endorsed by, or sponsored by those
+trademark owners.
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE).
