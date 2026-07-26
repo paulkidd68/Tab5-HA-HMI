@@ -7,6 +7,10 @@
 # Python virtual environments
 .venv*/
 
+# Python cache
+__pycache__/
+*.pyc
+
 # Editor settings
 .vscode/
 
