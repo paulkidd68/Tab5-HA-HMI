@@ -10,11 +10,6 @@ This repository contains multiple ESPHome YAML configurations and assets for a t
 
 - Main UI config: `tab5-ha-hmi.yaml`
 - Alternate/special configs:
-  - `camera 2 display.yaml`
-  - `day schedule.yaml`
-  - `night_shedule.yaml`
-  - `debug update bin.yaml`
-  - `update WC next bin.yaml`
 - Custom external component: `external_components/tab5_camera/`
 - UI assets: `images/`, `logos/`, `LVGL/`
 
