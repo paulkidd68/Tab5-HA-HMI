@@ -1,0 +1,3 @@
+convert_artwork: >
+    wget "{{ url }}" -O /config/www/artwork.jpg &&
+    convert /config/www/artwork.jpg -resize 240x240\! -strip -interlace Plane -quality 85 /config/www/artwork_baseline.jpg

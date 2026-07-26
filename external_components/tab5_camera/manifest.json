@@ -1,0 +1,7 @@
+{
+  "name": "Tab5 Camera",
+  "codeowners": ["@pakiddier"],
+  "dependencies": [],
+  "documentation": "https://github.com/pakiddier/tab5-camera",
+  "requirements": []
+}

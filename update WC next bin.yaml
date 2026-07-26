@@ -1,0 +1,123 @@
+alias: Update WC Next Bin
+sequence:
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.newark_sherwood_district_council
+    data:
+      start_date_time: >-
+        {{ (now() - timedelta(days=1)).replace(hour=0, minute=0, second=0,
+        microsecond=0).isoformat() }}
+      end_date_time: >-
+        {{ (now() + timedelta(days=30)).replace(hour=23, minute=59,
+        second=59).isoformat() }}
+    response_variable: events_resp
+  - delay: '00:00:02'
+  - action: calendar.get_events
+    target:
+      entity_id: calendar.newark_sherwood_district_council
+    data:
+      # retry with a slightly wider lookback to avoid transient misses
+      start_date_time: >-
+        {{ (now() - timedelta(days=3)).replace(hour=0, minute=0, second=0,
+        microsecond=0).isoformat() }}
+      end_date_time: >-
+        {{ (now() + timedelta(days=30)).replace(hour=23, minute=59,
+        second=59).isoformat() }}
+    response_variable: events_resp
+
+  - variables:
+      wc_value: >-
+        {%- set evs = [] -%}
+        {%- if events_resp is defined -%}
+          {%- set resp_parsed = events_resp | tojson | from_json -%}
+          {%- set cal_key = 'calendar.newark_sherwood_district_council' -%}
+          {%- if cal_key in resp_parsed -%}
+            {%- set raw_events = resp_parsed[cal_key]['events'] if ('events' in resp_parsed[cal_key] ) else (resp_parsed[cal_key].events if (resp_parsed[cal_key].events is defined) else []) -%}
+            {%- set evs = raw_events -%}
+          {%- else -%}
+            {%- set vals = resp_parsed.values() | list -%}
+            {%- if vals | length > 0 and 'events' in vals[0] -%}
+              {%- set evs = vals[0]['events'] -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endif -%}
+
+        {%- set today = now().date() | string -%}
+        {%- set evs_parsed = evs -%}
+        {%- if evs | length > 0 -%}
+          {%- set evs_parsed = evs | tojson | from_json -%}
+        {%- endif -%}
+
+        {%- set buckets = {} -%}
+        {%- for e in evs_parsed -%}
+          {%- set start_s = '' -%}
+          {%- if e is mapping and 'start' in e -%}
+            {%- set start_s = e['start'] | string -%}
+          {%- elif e.start is defined -%}
+            {%- if e.start.date is defined -%}
+              {%- set start_s = e.start.date | string -%}
+            {%- elif e.start.dateTime is defined -%}
+              {%- set start_s = e.start.dateTime | string -%}
+            {%- else -%}
+              {%- set start_s = e.start | string -%}
+            {%- endif -%}
+          {%- elif e.start_date is defined -%}
+            {%- set start_s = e.start_date | string -%}
+          {%- elif e.start_time is defined -%}
+            {%- set start_s = e.start_time | string -%}
+          {%- else -%}
+            {%- set js = (e | tojson) -%}
+            {%- if '"start"' in js -%}
+              {%- set part = js.split('"start"')[1] -%}
+              {%- if '"' in part -%}
+                {%- set start_s = (part.split('"')[1]) -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+
+          {%- if start_s|length >= 10 -%}
+            {%- set sd = start_s[:10] -%}
+            {%- if sd >= today -%}
+              {%- set s = (e.summary if (e.summary is defined) else (e.title if (e.title is defined) else '')) | trim -%}
+              {%- if s != '' -%}
+                {%- if sd in buckets -%}
+                  {%- set buckets = buckets | combine({ sd: (buckets[sd] + [s]) | unique }) -%}
+                {%- else -%}
+                  {%- set buckets = buckets | combine({ sd: [s] }) -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+
+        {%- set dates = buckets.keys() | list -%}
+        {%- if dates | length > 0 -%}
+          {%- set min_date = dates | min -%}
+          {%- set sums = buckets[min_date] -%}
+        {%- else -%}
+          {%- set sums = [] -%}
+        {%- endif -%}
+
+        {%- if sums | length == 0 -%}
+          {%- set calmsg = states.calendar.newark_sherwood_district_council.attributes.message | default('') | trim -%}
+          {{ calmsg if calmsg != '' else 'None' }}
+        {%- else -%}
+          {{ sums | join(', ') }}
+        {%- endif -%}
+  - variables:
+      wc_value_trunc: >-
+        {{ wc_value[: (states.input_text.wc_next_bin.attributes.max | default(255)) ] }}
+  - action: input_text.set_value
+    target:
+      entity_id: input_text.wc_next_bin
+    data:
+      value: "{{ wc_value_trunc }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ (wc_value_trunc | trim == '') or (wc_value_trunc == 'None') }}"
+        sequence:
+          - action: persistent_notification.create
+            data:
+              title: "Update WC Next Bin failed"
+              message: "No bin value could be determined (no events and no calendar message). Please check the Waste Collection integration or run the sync."

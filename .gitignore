@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# ESPHome build/output
+.esphome/
+
+# Python virtual environments
+.venv*/
+
+# Editor settings
+.vscode/
+
+# Local secrets
+secrets.yaml
+
+# Logs
+*.log
