@@ -1,5 +1,5 @@
-# Tab5 Home assistant dashboard
-# Based around the M5Stack demo code.
+# Tab5 Home assistant dashboard for Tab5 Version 1
+# Based around the M5Stack Tab% Home assistant demo code that has now been removed.
 # Modified by P.Kiddier 2026 for use as a Home Assistant dashboard and general HMI
 
 substitutions:
