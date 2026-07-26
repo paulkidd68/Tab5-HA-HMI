@@ -1,5 +1,7 @@
 # Tab5-HA-HMI
 
+# THIS IS FOR THE TAB5 VERSION 1 ONLY! #
+
 ESPHome + LVGL dashboard for the M5Stack Tab5, designed to integrate with Home Assistant.
 
 ## What this project is
@@ -18,7 +20,7 @@ This repository contains multiple ESPHome YAML configurations and assets for a t
 
 ## Requirements
 
-- M5Stack Tab5 hardware
+- M5Stack Tab5 hardware version 1
 - Home Assistant instance (API integration)
 - ESPHome (recommended with Python virtual environment)
 
