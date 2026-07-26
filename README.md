@@ -55,6 +55,56 @@ esphome upload tab5-ha-hmi.yaml
 - Keep `secrets.yaml` local only.
 - The main branch is configured as `main`.
 
+## Screenshots and assets
+
+Current assets included in this repository:
+
+- UI/visual reference:
+
+  ![Heater panel](images/heater.jpg)
+
+- Service/app logos used by the media UI:
+  - ![Amazon](logos/amazon.png)
+  - ![Apple TV](logos/appletv.png)
+  - ![Disney](logos/disney.png)
+  - ![Netflix](logos/netflix_logo.png)
+  - ![YouTube](logos/youtube.png)
+
+If you want, replace these files with your own assets while keeping the same filenames to avoid YAML changes.
+
+## Troubleshooting
+
+Common ESPHome issues and quick fixes:
+
+1. Build fails with missing secrets
+  - Confirm `secrets.yaml` exists in the repo root.
+  - Confirm every `!secret` key used in your YAML exists in `secrets.yaml`.
+
+2. Upload fails over network
+  - Verify device and computer are on the same network.
+  - Try USB upload once, then retry OTA:
+
+```bash
+esphome run tab5-ha-hmi.yaml --device /dev/tty.usbmodem*
+```
+
+3. Home Assistant entities show as unknown/unavailable
+  - Confirm API encryption key matches between ESPHome and Home Assistant.
+  - Confirm each `entity_id` exists in Home Assistant and has a valid state.
+  - Restart the ESPHome device after major entity/config changes.
+
+4. External component errors
+  - Validate `external_components/tab5_camera/manifest.json` is present and valid.
+  - Run config check first to catch schema/path issues early:
+
+```bash
+esphome config tab5-ha-hmi.yaml
+```
+
+5. Missing media files during compile
+  - Ensure all referenced local media files exist at the expected paths.
+  - Remove or update references to files you do not use.
+
 ## License
 
-No license file is currently included. If you want this project to be open source, add a license (for example MIT).
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
